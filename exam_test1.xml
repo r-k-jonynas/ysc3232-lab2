@@ -1,0 +1,14 @@
+<exam>
+    <question type='YesNoQuestion' questionText='Is Java compiled to JVM bytecode?'>
+  <option name='Yes' optionType='Yes' correctness='Correct'> </option>
+  <option name='No / Not sure' optionType='No' correctness='Incorrect'> </option>
+</question>
+    <question type='MultipleChoice' questionText='Which of these languages are interpreted?'> 
+  <option name='C++' correctness='Incorrect'> </option>
+  <option name='Rust' correctness='Incorrect'> </option>
+  <option name='JavaScript' correctness='Correct'> </option>
+  <option name='Perl' correctness='Correct'> </option>
+  <option name='Python' correctness='Correct'> </option>
+</question>
+    <question type='Open' questionText='What does operating system do when you type python script.py in the terminal?'/>
+ </exam>

@@ -1,0 +1,3 @@
+public enum ExamStatus {
+    IN_THE_MAKING, CREATED, RELEASED, FINISHED, GRADED
+}
