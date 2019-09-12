@@ -1,21 +1,17 @@
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/*
+    Exam class.
+    Stores and manipulates exam objects.
+    Allows the functionality of adding questions, saving exam as XML, and running exam session in the terminal.
+ */
 public class Exam implements XMLizable{
     List<Question> questionList;
     String producer;
@@ -23,7 +19,9 @@ public class Exam implements XMLizable{
     Date dateTaken;
     ExamStatus status;
 
-
+    /*
+    Default exam constructor
+     */
     public Exam() {
         this.questionList = new ArrayList<Question>();
         this.producer = "RYTIS";
@@ -39,6 +37,13 @@ public class Exam implements XMLizable{
         this.producer = whoMadeExam;
         this.dateCreated = whenExamWasMade;
         this.status = ExamStatus.IN_THE_MAKING;
+    }
+
+    /*
+    A getter for questionList
+     */
+    public List<Question> getQuestionList() {
+        return this.questionList;
     }
 
     /*
@@ -67,16 +72,25 @@ public class Exam implements XMLizable{
         this.status = ExamStatus.CREATED;
     }
 
+    /*
+    Method for adding new Questions to the existing question list of the Exam Object
+     */
     public void addQuestions (List<Question> newQuestions) {
         for (Question q: newQuestions) {
             this.questionList.add(q);
         }
     }
 
+    /*
+    Changes the status of the Exam to RELEASED (ready for answering)
+     */
     public void releaseExam() {
         this.status = ExamStatus.RELEASED;
     }
 
+    /*
+    Iterates over question and provides an interface for answering each of them and saving the answers.
+     */
     public void takeExam() throws IllegalAccessException {
         if (this.status != ExamStatus.RELEASED) {
             throw new IllegalAccessException("The exam has either been released yet or has already been finished.");
@@ -91,6 +105,9 @@ public class Exam implements XMLizable{
         }
     }
 
+    /*
+    Generates a string from the Exam object.
+     */
     @Override
     public String toXML() {
         String qstring = "";
@@ -101,9 +118,9 @@ public class Exam implements XMLizable{
         return "<exam>" + qstring + "</exam>";
     }
 
-    /*
-    Applied from saveXMLFile function in Planner project
-    written by @author: professor Bruno Bodin
+    /* A function that takes XML and saves it into a text file (.xml).
+    Taken from saveXMLFile function in Planner project
+    (written by @author: professor Bruno Bodin)
      */
     void saveXMLFile(String filename) {
         String str = this.toXML();
@@ -114,132 +131,37 @@ public class Exam implements XMLizable{
         }
     }
 
-
-    public static Exam loadExam(String filename) throws IOException, SAXException {
-        Exam resExam;
-        File inputXMLFile = new File(filename);
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dBuilder;
-        try {
-            dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(inputXMLFile);
-            doc.getDocumentElement().normalize();
-//            System.out.println("Root element :" +
-//                    doc.getDocumentElement().getNodeName());
-            Element examE = doc.getDocumentElement();
-//            String examProducer =
-            resExam = new Exam();
-
-            List<Question> newQuestionList = new ArrayList<>();
-
-            NodeList questionElements = examE.getElementsByTagName("question");
-            for (int i = 0; i < questionElements.getLength(); i++) {
-                Node questionN = questionElements.item(i);
-//                System.out.println("\nCurrent Element :" + questionN.getNodeName());
-                if (questionN.getNodeType() == Node.ELEMENT_NODE) {
-                    Element questionE = (Element) questionN;
-                    String questionType = questionE.getAttribute("type");
-
-                    switch (questionType) {
-                        case "YesNoQuestion": {
-                            String questionTextYNQ = questionE.getAttribute("questionText");
-                            NodeList optionElementsYNQ = questionE.getElementsByTagName("option");
-                            String yes = "Y"; String no = "N";
-                            int correct = 1;
-                            for (int j = 0; j < optionElementsYNQ.getLength(); j++) {
-                                Node optionN = optionElementsYNQ.item(j);
-                                if (optionN.getNodeType() == Node.ELEMENT_NODE) {
-                                    Element optionE = (Element) optionN;
-                                    String optionType = optionE.getAttribute("optionType");
-                                    if (optionType.equals("No")) {
-                                        no = optionE.getAttribute("name");
-                                    } else if (optionType.equals("Yes")) {
-                                        yes = optionE.getAttribute("name");
-                                        String correctness = optionE.getAttribute("correctness");
-                                        correct = (correctness.equals("Correct")) ? 1 : 0;
-                                    } else {
-                                        throw new InputMismatchException(); // Not exactly sure if this is an appropriate error
-                                    }
-                                }
-                            }
-
-                            YesNoQuestion tempQ = new YesNoQuestion(questionTextYNQ, yes, no, correct);
-                            newQuestionList.add(tempQ);
-                            break;
-                        }
-
-                        case "MultipleChoice": {
-                            String questionTextMCQ = questionE.getAttribute("questionText");
-                            NodeList optionElementsMCQ = questionE.getElementsByTagName("option");
-                            Set<String> correctOptions = new HashSet<>();
-                            Set<String> allOptions = new HashSet<>();
-                            for (int j = 0; j < optionElementsMCQ.getLength(); j++) {
-                                Node optionN = optionElementsMCQ.item(j);
-                                if (optionN.getNodeType() == Node.ELEMENT_NODE) {
-                                    Element optionE = (Element) optionN;
-//                                    System.out.println(optionE.getAttribute("name"));
-//                                    System.out.println(optionE.getAttribute("correctness"));
-                                    if (optionE.getAttribute("correctness").equals("Correct")) {
-                                        correctOptions.add(optionE.getAttribute("name"));
-                                    } else if ((!optionE.getAttribute("correctness").equals("Incorrect"))
-                                            && (!optionE.getAttribute("correctness").equals("Correct"))) {
-                                        throw new InputMismatchException(); // Not exactly sure if this is an appropriate error
-                                    }
-                                    allOptions.add(optionE.getAttribute("name"));
-                                }
-                            }
-                            MultipleChoiceQuestion tempQ = new MultipleChoiceQuestion(questionTextMCQ, allOptions, correctOptions);
-                            newQuestionList.add(tempQ);
-                            break;
-                        }
-
-                        case "Open": {
-                            String questionTextOQ = questionE.getAttribute("questionText");
-                            OpenQuestion tempQ = new OpenQuestion(questionTextOQ);
-                            newQuestionList.add(tempQ);
-                            break;
-                        }
-                    }
-                }
-            }
-            resExam.addQuestions(newQuestionList);
-            return resExam;
-        } catch (ParserConfigurationException e) {
-            Logger.getLogger(Exam.class.getName()).log(Level.SEVERE, null,
-                    e);
-        }
-        return null;
-    }
-
+    /*
+    Demo for showing functionality for:
+        1) creating XML file for Exam object;
+        2) creating Exam object from XML file;
+        3) demoing Exam session - answering questions in the terminal.
+     */
     public static void demo() {
         Exam test = new Exam();
-//        System.out.println(test.dateCreated);
-//        System.out.println(test.dateTaken);
-//        System.out.println(test.status);
         test.addDefaultQuestionSet();
 
         System.out.println(test.toXML());
         test.saveXMLFile("exam_test1.xml");
         try {
-            Exam test_loaded = Exam.loadExam("exam_test1.xml");
+            Exam test_loaded = ExamLoader.loadExam("exam_test1.xml");
             System.out.println("----------------");
             System.out.println(test_loaded.toXML());
-            test_loaded.saveXMLFile("test_loaded.xml");
+
+            // Release the exam
+            test_loaded.releaseExam();
+            // Start exam session
+            test_loaded.takeExam();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (SAXException e) {
             e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            System.out.println("Exam was not released");
+            e.printStackTrace();
         }
-////        System.out.println(test.dateCreated);
-//        System.out.println(test.dateTaken);
-//        System.out.println(test.status);
-//        System.out.println("------------");
-//        test.releaseExam();
-//        try {
-//            test.takeExam();
-//        } catch (IllegalAccessException e) {
-//            e.printStackTrace();
-//        }
+
+
         System.out.println("Executed!");
     }
 

@@ -1,5 +1,9 @@
 import java.util.Scanner;
-
+/*
+    A class for Yes-No question.
+    Takes care of the functionality for creating, saving as XML, answering, and grading of the question.
+    Provides functionality for custom names for Yes and No options.
+ */
 public class YesNoQuestion extends Question {
     private String questionText;
     private String YesOption;
@@ -16,12 +20,17 @@ public class YesNoQuestion extends Question {
         this.answered = false;
         this.answeredCorrectly = false;
     }
-
+    /*
+        Prints the yes-no question text.
+     */
     @Override
     public void printQuestion() {
         System.out.println(questionText);
     }
 
+    /*
+        Creates user interface for answering a question and grades the answer.
+    */
     @Override
     public void answerQuestion(Scanner sc) {
         System.out.println("Select 1 for [" + YesOption + "] or 0 for [" + NoOption + "]:");
@@ -52,6 +61,9 @@ public class YesNoQuestion extends Question {
         this.answeredCorrectly = (answer == this.correctOption);
     }
 
+    /*
+        Returns marks received.
+    */
     @Override
     public int getPointsAwarded() {
         if (answered && answeredCorrectly) {
@@ -61,6 +73,9 @@ public class YesNoQuestion extends Question {
         }
     }
 
+    /*
+    Generates XML string from the Question object
+     */
     @Override
     public String toXML() {
         String stringXML =  "<question type='YesNoQuestion' " + "questionText='"
@@ -87,20 +102,5 @@ public class YesNoQuestion extends Question {
         stringXML += "</question>";
         return stringXML;
 
-    }
-
-    public static void main(String[] args) {
-        YesNoQuestion test1 = new YesNoQuestion("Is Java Cool?", "Very cool", "Nah. Not my cup of tea", 1);
-        test1.printQuestion();
-        System.out.println(test1.toXML());
-//        Scanner scanner = new Scanner(System.in); // Create a Scanner object to direct stdin
-//
-//        test1.answerQuestion(scanner);
-////        System.out.println(test1.getPointsAwarded());
-//        test1.answerQuestion(scanner);
-////        System.out.println(test1.getPointsAwarded());
-//        test1.answerQuestion(scanner);
-////        System.out.println(test1.getPointsAwarded());
-//        scanner.close();
     }
 }

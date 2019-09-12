@@ -1,6 +1,9 @@
 import java.util.*;
 ;
-
+/*
+    A class for multiple-choice question.
+    Takes care of the functionality for creating, saving as XML, answering, and grading of the question.
+ */
 public class MultipleChoiceQuestion extends Question {
     String questionText;
     Set<String> options;
@@ -17,7 +20,9 @@ public class MultipleChoiceQuestion extends Question {
         this.answered = false;
     }
 
-
+    /*
+    Prints the multiple-choice question text and the answer options.
+    */
     @Override
     public void printQuestion() {
         System.out.println(questionText);
@@ -28,6 +33,9 @@ public class MultipleChoiceQuestion extends Question {
         }
     }
 
+    /*
+        Creates user interface for answering a question, marks the answer and saves the grade for this question.
+     */
     @Override
     public void answerQuestion(Scanner sc) {
         System.out.println("Enter your answer here:");
@@ -49,11 +57,17 @@ public class MultipleChoiceQuestion extends Question {
         }
     }
 
+    /*
+    Returns marks received.
+     */
     @Override
     public int getPointsAwarded() {
         return this.pointsAwarded;
     }
 
+    /*
+        Generates XML string from the Question object
+    */
     @Override
     public String toXML() {
         String stringXML =  "<question type='MultipleChoice' " + "questionText='"
@@ -91,14 +105,14 @@ public class MultipleChoiceQuestion extends Question {
 //        System.out.println(optionsToXML(test1.options));
         System.out.println(test1.toXML());
 
-//        Scanner scanner = new Scanner(System.in); // Create a Scanner object to direct stdin
-//        test1.answerQuestion(scanner);
-//
-//        test1.answerQuestion(scanner);
-//        System.out.println(test1.getPointsAwarded());
-//        test1.answerQuestion(scanner);
-//        System.out.println(test1.getPointsAwarded());
-//        scanner.close();
+        Scanner scanner = new Scanner(System.in); // Create a Scanner object to direct stdin
+        test1.answerQuestion(scanner);
+
+        test1.answerQuestion(scanner);
+        System.out.println(test1.getPointsAwarded());
+        test1.answerQuestion(scanner);
+        System.out.println(test1.getPointsAwarded());
+        scanner.close();
     }
 
 }
